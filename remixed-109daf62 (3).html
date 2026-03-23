@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="VialWell">
+<title>VialWell</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{--rose:#C97D78;--rose-dark:#8B3D38;--rose-deep:#5C2420;--rose-light:#F5E6E3;--rose-pale:#FEF3F1;--blush:#EDD5D1;--cream:#FFF8F6;--text:#3D2320;--text-mid:#7A4F4B;--text-muted:#A07470;--text-hint:#C4A09C;--success:#7A9E7E;--warning:#C9954A;--border:#EDD5D1;}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+html,body{height:100%;background:var(--cream);font-family:'DM Sans',sans-serif;color:var(--text);overflow:hidden;}
+#app{display:flex;flex-direction:column;height:100vh;height:100dvh;max-width:430px;margin:0 auto;background:var(--cream);position:relative;overflow:hidden;box-shadow:0 0 60px rgba(139,61,56,.12);}
+.screen{display:none;flex:1;flex-direction:column;overflow:hidden;}
+.screen.active{display:flex;}
+.topbar{padding:52px 20px 14px;background:var(--cream);border-bottom:1px solid var(--border);flex-shrink:0;}
+.topbar-brand{font-family:'Cormorant Garamond',serif;font-size:11px;font-weight:400;letter-spacing:.2em;text-transform:uppercase;color:var(--rose);margin-bottom:2px;}
+.topbar h1{font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:300;color:var(--text);line-height:1;}
+.topbar p{font-size:12px;color:var(--text-muted);margin-top:3px;}
+.scroll{flex:1;overflow-y:auto;padding:16px;-webkit-overflow-scrolling:touch;}
+.scroll::-webkit-scrollbar{display:none;}
+.tabbar{display:flex;background:var(--cream);border-top:1px solid var(--border);padding:8px 0 max(12px,env(safe-area-inset-bottom));flex-shrink:0;}
+.tab{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:4px 0;cursor:pointer;color:var(--text-hint);transition:color .2s;font-size:9px;letter-spacing:.05em;text-transform:uppercase;}
+.tab.active{color:var(--rose);}
+.tab svg{width:22px;height:22px;}
+.card{background:white;border:1px solid var(--border);border-radius:16px;padding:14px 16px;margin-bottom:10px;}
+.card-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px;}
+.card-name{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:400;color:var(--text);}
+.card-sub{font-size:11px;color:var(--text-muted);margin-top:2px;}
+.badge{display:inline-flex;align-items:center;font-size:10px;font-weight:500;padding:3px 9px;border-radius:20px;letter-spacing:.03em;}
+.badge-on{background:var(--rose-light);color:var(--rose-dark);}
+.badge-off{background:#F0EAE8;color:var(--text-muted);}
+.badge-soon{background:#FFF3E0;color:var(--warning);}
+.progress-wrap{margin:10px 0 4px;}
+.progress-label{display:flex;justify-content:space-between;font-size:11px;color:var(--text-muted);margin-bottom:5px;}
+.progress-track{height:5px;background:var(--blush);border-radius:3px;overflow:hidden;}
+.progress-fill{height:100%;border-radius:3px;background:var(--rose);transition:width .6s;}
+.progress-fill.low{background:var(--warning);}
+.progress-fill.critical{background:#C97D78;}
+.section-label{font-size:10px;font-weight:500;letter-spacing:.12em;text-transform:uppercase;color:var(--rose);margin:16px 0 8px;}
+.field{margin-bottom:14px;}
+.field label{display:block;font-size:11px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;color:var(--text-mid);margin-bottom:6px;}
+.field input,.field select,.field textarea{width:100%;padding:11px 14px;background:white;border:1px solid var(--border);border-radius:12px;font-family:'DM Sans',sans-serif;font-size:14px;color:var(--text);outline:none;-webkit-appearance:none;}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--rose);}
+.field textarea{resize:none;height:72px;}
+.field select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23A07470' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;padding-right:36px;}
+.pill-group{display:flex;flex-wrap:wrap;gap:7px;}
+.pill{padding:7px 14px;border-radius:20px;font-size:12px;cursor:pointer;border:1px solid var(--border);color:var(--text-muted);background:white;transition:all .15s;}
+.pill.active{background:var(--rose);color:white;border-color:var(--rose);}
+.site-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;}
+.site-btn{padding:9px 4px;font-size:10px;text-align:center;border:1px solid var(--border);border-radius:10px;background:white;color:var(--text-muted);cursor:pointer;transition:all .15s;line-height:1.3;}
+.site-btn.last-used{border-color:var(--rose);color:var(--rose-dark);background:var(--rose-pale);}
+.site-btn.selected{background:var(--rose);color:white;border-color:var(--rose);}
+.btn-primary{width:100%;padding:14px;background:var(--rose);color:white;border:none;border-radius:14px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;cursor:pointer;letter-spacing:.03em;transition:background .15s;margin-top:8px;}
+.btn-primary:active{background:var(--rose-dark);}
+.btn-ghost{padding:8px 16px;background:transparent;border:1px solid var(--border);border-radius:10px;font-family:'DM Sans',sans-serif;font-size:12px;color:var(--text-mid);cursor:pointer;}
+.notif{border-left:3px solid var(--rose);padding:10px 12px;background:white;border-radius:0 12px 12px 0;margin-bottom:8px;}
+.notif.am{border-color:var(--warning);}
+.notif h4{font-size:13px;font-weight:500;color:var(--text);}
+.notif p{font-size:11px;color:var(--text-muted);margin-top:2px;}
+.shop-card{display:flex;align-items:center;gap:12px;background:white;border:1px solid var(--border);border-radius:14px;padding:12px 14px;margin-bottom:8px;cursor:pointer;}
+.shop-dot{width:36px;height:36px;border-radius:10px;background:var(--rose-light);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.shop-dot span{width:12px;height:12px;border-radius:50%;background:var(--rose);display:block;}
+.shop-info{flex:1;}
+.shop-info h4{font-size:13px;font-weight:500;color:var(--text);}
+.shop-info p{font-size:11px;color:var(--text-muted);margin-top:1px;}
+.shop-arrow{font-size:18px;color:var(--rose);}
+.toggle-row{display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--border);}
+.toggle-row:last-child{border-bottom:none;}
+.toggle-label h4{font-size:13px;font-weight:500;color:var(--text);}
+.toggle-label p{font-size:11px;color:var(--text-muted);margin-top:2px;}
+.toggle{width:44px;height:26px;border-radius:13px;background:var(--blush);position:relative;cursor:pointer;transition:background .2s;flex-shrink:0;}
+.toggle.on{background:var(--rose);}
+.toggle-knob{width:20px;height:20px;background:white;border-radius:50%;position:absolute;top:3px;left:3px;transition:left .2s;box-shadow:0 1px 3px rgba(0,0,0,.15);}
+.toggle.on .toggle-knob{left:21px;}
+.metrics{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;}
+.metric{background:var(--rose-pale);border-radius:14px;padding:14px;}
+.metric .m-label{font-size:11px;color:var(--text-muted);margin-bottom:4px;}
+.metric .m-val{font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:300;color:var(--text);line-height:1;}
+.metric .m-sub{font-size:10px;color:var(--text-hint);margin-top:2px;}
+.week-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin-top:6px;}
+.week-cell{background:white;border:1px solid var(--border);border-radius:8px;padding:6px 4px;font-size:10px;text-align:center;}
+.week-cell .day{font-weight:500;color:var(--text-mid);margin-bottom:3px;}
+.week-cell .am{color:var(--warning);font-size:9px;line-height:1.5;}
+.week-cell .pm{color:var(--rose);font-size:9px;line-height:1.5;}
+#toast{position:fixed;bottom:100px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--text);color:white;padding:10px 20px;border-radius:20px;font-size:13px;opacity:0;transition:all .3s;pointer-events:none;z-index:999;white-space:nowrap;}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(61,35,32,.4);z-index:100;align-items:flex-end;}
+.modal-overlay.open{display:flex;}
+.modal{background:var(--cream);border-radius:24px 24px 0 0;padding:20px 20px max(24px,env(safe-area-inset-bottom));width:100%;max-height:90vh;overflow-y:auto;}
+.modal-handle{width:36px;height:4px;background:var(--blush);border-radius:2px;margin:0 auto 16px;}
+.modal h2{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:300;margin-bottom:16px;}
+.form-section{background:var(--rose-pale);border-radius:14px;padding:14px;margin-bottom:10px;}
+.form-section h3{font-size:12px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;color:var(--rose);margin-bottom:12px;}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+/* AUTH */
+#auth-screen{position:fixed;inset:0;background:var(--cream);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:300;padding:32px 24px;}
+#auth-screen h1{font-family:'Cormorant Garamond',serif;font-size:52px;font-weight:300;color:var(--rose);letter-spacing:.05em;margin-bottom:6px;}
+#auth-screen .tagline{font-size:12px;color:var(--text-muted);letter-spacing:.1em;margin-bottom:40px;}
+.auth-box{width:100%;max-width:360px;}
+.auth-tabs{display:flex;gap:0;margin-bottom:20px;border:1px solid var(--border);border-radius:12px;overflow:hidden;}
+.auth-tab{flex:1;padding:10px;text-align:center;font-size:13px;cursor:pointer;background:white;color:var(--text-muted);transition:all .2s;}
+.auth-tab.active{background:var(--rose);color:white;}
+#auth-error{font-size:12px;color:#C97D78;text-align:center;margin-top:8px;min-height:18px;}
+#splash{position:fixed;inset:0;background:var(--cream);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:200;transition:opacity .5s;}
+#splash h1{font-family:'Cormorant Garamond',serif;font-size:52px;font-weight:300;color:var(--rose);letter-spacing:.05em;}
+#splash p{font-size:13px;color:var(--text-muted);margin-top:6px;letter-spacing:.1em;}
+.splash-dots{display:flex;gap:6px;margin-top:40px;}
+.splash-dot{width:6px;height:6px;border-radius:50%;background:var(--blush);animation:pulse 1.2s infinite;}
+.splash-dot:nth-child(2){animation-delay:.2s;}
+.splash-dot:nth-child(3){animation-delay:.4s;}
+@keyframes pulse{0%,100%{background:var(--blush)}50%{background:var(--rose)}}
+.log-status{display:flex;align-items:center;gap:6px;margin-top:8px;}
+.log-dot{width:7px;height:7px;border-radius:50%;background:var(--blush);}
+.log-dot.done{background:var(--success);}
+.log-status-text{font-size:11px;color:var(--text-muted);}
+.loading-overlay{position:fixed;inset:0;background:rgba(255,248,246,.85);display:flex;align-items:center;justify-content:center;z-index:400;}
+.spinner{width:28px;height:28px;border:2px solid var(--blush);border-top-color:var(--rose);border-radius:50%;animation:spin .7s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+
+<div id="splash">
+  <h1>VialWell</h1>
+  <p>Your peptide ritual, beautifully tracked</p>
+  <div class="splash-dots"><div class="splash-dot"></div><div class="splash-dot"></div><div class="splash-dot"></div></div>
+</div>
+
+<!-- AUTH SCREEN -->
+<div id="auth-screen" style="display:none;">
+  <h1>VialWell</h1>
+  <p class="tagline">Your peptide ritual, beautifully tracked</p>
+  <div class="auth-box">
+    <div class="auth-tabs">
+      <div class="auth-tab active" id="tab-signin" onclick="switchAuthTab('signin')">Sign in</div>
+      <div class="auth-tab" id="tab-signup" onclick="switchAuthTab('signup')">Create account</div>
+    </div>
+    <div id="signin-form">
+      <div class="field"><label>Email</label><input type="email" id="si-email" placeholder="you@example.com"></div>
+      <div class="field"><label>Password</label><input type="password" id="si-pass" placeholder="••••••••"></div>
+      <button class="btn-primary" onclick="signIn()">Sign in</button>
+    </div>
+    <div id="signup-form" style="display:none">
+      <div class="field"><label>Name</label><input type="text" id="su-name" placeholder="Your name"></div>
+      <div class="field"><label>Email</label><input type="email" id="su-email" placeholder="you@example.com"></div>
+      <div class="field"><label>Password</label><input type="password" id="su-pass" placeholder="Min 6 characters"></div>
+      <button class="btn-primary" onclick="signUp()">Create account</button>
+    </div>
+    <div id="auth-error"></div>
+  </div>
+</div>
+
+<div id="app" style="display:none;">
+
+  <!-- HOME -->
+  <div id="screen-home" class="screen active">
+    <div class="topbar">
+      <div class="topbar-brand">VialWell</div>
+      <h1>My Peptides</h1>
+      <p id="home-date"></p>
+    </div>
+    <div class="scroll">
+      <div class="metrics">
+        <div class="metric"><div class="m-label">On cycle</div><div class="m-val" id="m-on">—</div><div class="m-sub">peptides active</div></div>
+        <div class="metric"><div class="m-label">Logged today</div><div class="m-val" id="m-logged">—</div><div class="m-sub">of <span id="m-total">—</span> due</div></div>
+      </div>
+      <div id="peptide-cards"></div>
+    </div>
+  </div>
+
+  <!-- LOG -->
+  <div id="screen-log" class="screen">
+    <div class="topbar">
+      <div class="topbar-brand">VialWell</div>
+      <h1>Log Dose</h1>
+      <p id="log-date-display"></p>
+    </div>
+    <div class="scroll">
+      <div class="section-label">Select peptide</div>
+      <div class="pill-group" id="log-peptide-pills"></div>
+      <div id="log-form" style="display:none;margin-top:16px">
+        <div class="field"><label>Date</label><input type="date" id="log-date-input"></div>
+        <div class="field"><label>Dose</label><input type="text" id="log-dose-display" readonly style="background:var(--rose-pale);color:var(--text-mid)"></div>
+        <div class="field"><label>Injection site</label><div class="site-grid" id="site-grid"></div></div>
+        <div class="field"><label>Notes</label><textarea id="log-notes" placeholder="Optional — effects, observations, mood..."></textarea></div>
+        <button class="btn-primary" onclick="saveLog()">Save dose</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCHEDULE -->
+  <div id="screen-reminders" class="screen">
+    <div class="topbar">
+      <div class="topbar-brand">VialWell</div>
+      <h1>Schedule</h1>
+      <p>Your weekly ritual</p>
+    </div>
+    <div class="scroll">
+      <div class="section-label">Weekly overview</div>
+      <div class="week-grid">
+        <div class="week-cell"><div class="day">Mon</div><div class="am">Semax<br>NAD+</div><div class="pm">KLOW<br>Selank<br>Gluta</div></div>
+        <div class="week-cell"><div class="day">Tue</div><div class="am">Semax</div><div class="pm">KLOW<br>Selank</div></div>
+        <div class="week-cell"><div class="day">Wed</div><div class="am">Semax<br>NAD+</div><div class="pm">KLOW<br>Selank<br>Gluta</div></div>
+        <div class="week-cell"><div class="day">Thu</div><div class="am">Semax</div><div class="pm">KLOW<br>Selank</div></div>
+        <div class="week-cell"><div class="day">Fri</div><div class="am">Semax<br>Retat.</div><div class="pm">KLOW<br>Selank<br>Gluta</div></div>
+      </div>
+      <div class="section-label" style="margin-top:20px">Today's doses</div>
+      <div id="todays-schedule"></div>
+    </div>
+  </div>
+
+  <!-- SHOP -->
+  <div id="screen-shop" class="screen">
+    <div class="topbar">
+      <div class="topbar-brand">VialWell</div>
+      <h1>Shop</h1>
+      <p>Curated peptides & supplies</p>
+    </div>
+    <div class="scroll">
+      <div class="section-label">Your peptides</div>
+      <div id="shop-peptides"></div>
+      <div class="section-label">Supplies</div>
+      <div class="shop-card"><div class="shop-dot"><span style="background:var(--text-mid);border-radius:2px;width:10px;height:10px"></span></div><div class="shop-info"><h4>BAC Water · 30ml</h4><p>Bacteriostatic water for reconstitution</p></div><div class="shop-arrow">›</div></div>
+      <div class="shop-card"><div class="shop-dot"><span style="background:var(--text-mid);border-radius:2px;width:10px;height:10px"></span></div><div class="shop-info"><h4>Insulin Syringes · 100pk</h4><p>29g · 0.5ml subcutaneous</p></div><div class="shop-arrow">›</div></div>
+      <div class="shop-card"><div class="shop-dot"><span style="background:var(--text-mid);border-radius:2px;width:10px;height:10px"></span></div><div class="shop-info"><h4>Alcohol Swabs · 200pk</h4><p>Prep skin and vial tops</p></div><div class="shop-arrow">›</div></div>
+      <div class="shop-card"><div class="shop-dot"><span style="background:var(--text-mid);border-radius:2px;width:10px;height:10px"></span></div><div class="shop-info"><h4>Sharps Container</h4><p>Safe disposal</p></div><div class="shop-arrow">›</div></div>
+    </div>
+  </div>
+
+  <!-- PROFILE -->
+  <div id="screen-profile" class="screen">
+    <div class="topbar">
+      <div class="topbar-brand">VialWell</div>
+      <h1>Profile</h1>
+      <p id="profile-email-display"></p>
+    </div>
+    <div class="scroll">
+      <div class="section-label">Account</div>
+      <div class="card">
+        <div style="font-size:13px;color:var(--text-muted);margin-bottom:12px">Signed in as <span id="profile-name-display" style="color:var(--text);font-weight:500"></span></div>
+        <button class="btn-ghost" style="width:100%;color:var(--rose-dark);border-color:var(--rose-light)" onclick="signOut()">Sign out</button>
+      </div>
+      <div class="section-label">My peptides</div>
+      <div id="profile-peptide-list"></div>
+      <button class="btn-ghost" style="width:100%;margin-top:4px" onclick="openModal()">+ Add peptide</button>
+      <div class="section-label" style="margin-top:20px">Data</div>
+      <div class="card">
+        <div class="toggle-row">
+          <div class="toggle-label"><h4>Sync across devices</h4><p>Your data is saved to the cloud</p></div>
+          <div class="toggle on"><div class="toggle-knob"></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tabbar">
+    <div class="tab active" id="tab-home" onclick="showScreen('home')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>Home
+    </div>
+    <div class="tab" id="tab-log" onclick="showScreen('log')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>Log
+    </div>
+    <div class="tab" id="tab-reminders" onclick="showScreen('reminders')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="14" rx="2"/><path d="M8 20h8M12 18v2"/></svg>Schedule
+    </div>
+    <div class="tab" id="tab-shop" onclick="showScreen('shop')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h2l2.5 9h9l2-6H7"/><circle cx="9" cy="18" r="1.5" fill="currentColor"/><circle cx="16" cy="18" r="1.5" fill="currentColor"/></svg>Shop
+    </div>
+    <div class="tab" id="tab-profile" onclick="showScreen('profile')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>Profile
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<!-- ADD/EDIT PEPTIDE MODAL -->
+<div class="modal-overlay" id="add-modal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <h2 id="modal-title">Add peptide</h2>
+    <input type="hidden" id="edit-peptide-id">
+    <div class="form-section"><h3>Basics</h3>
+      <div class="field"><label>Name</label><input type="text" id="p-name" placeholder="e.g. BPC-157"></div>
+      <div class="form-row">
+        <div class="field"><label>Std dose</label><input type="text" id="p-dose" placeholder="e.g. 500 mg"></div>
+        <div class="field"><label>Inj. volume</label><input type="text" id="p-vol" placeholder="e.g. 1.0 mL"></div>
+      </div>
+      <div class="field"><label>Frequency</label>
+        <select id="p-freq"><option>Daily</option><option>2 times per week</option><option>3 times per week</option><option>Every other day</option><option>Weekly</option><option>As needed</option></select>
+      </div>
+      <div class="field"><label>Injection type</label>
+        <select id="p-inj"><option>Fat (subcutaneous)</option><option>Muscle (intramuscular)</option></select>
+      </div>
+    </div>
+    <div class="form-section"><h3>Reconstitution</h3>
+      <div class="form-row">
+        <div class="field"><label>Vial size</label><input type="text" id="p-vial" placeholder="e.g. 10 mg"></div>
+        <div class="field"><label>BAC water</label><input type="text" id="p-bac" placeholder="e.g. 2 mL"></div>
+      </div>
+      <div class="field"><label>Vials in stock</label><input type="number" id="p-stock" placeholder="e.g. 3" min="0"></div>
+    </div>
+    <div class="form-section"><h3>Current cycle window</h3>
+      <div class="form-row">
+        <div class="field"><label>Cycle start</label><input type="date" id="p-cycle-on"></div>
+        <div class="field"><label>Cycle end</label><input type="date" id="p-cycle-off"></div>
+      </div>
+    </div>
+    <button class="btn-primary" onclick="savePeptide()">Save</button>
+    <button class="btn-ghost" style="width:100%;margin-top:8px" onclick="closeModal()">Cancel</button>
+  </div>
+</div>
+
+<script>
+// ─── CYCLE DATA ───────────────────────────────────────────
+const CYCLES = {
+  'NAD+':       [['2025-10-27','2026-01-01'],['2026-01-31','2026-03-10'],['2026-04-09','2026-06-04'],['2026-07-04','2026-08-29'],['2026-09-28','2026-11-23']],
+  'Semax':      [['2025-10-27','2025-12-29'],['2026-01-19','2026-02-20'],['2026-03-13','2026-04-24'],['2026-05-15','2026-06-26'],['2026-07-17','2026-08-28']],
+  'KLOW':       [['2025-10-27','2026-01-05'],['2026-02-04','2026-04-15'],['2026-05-15','2026-07-24'],['2026-08-23','2026-11-01'],['2026-12-01','2027-02-09']],
+  'Selank':     [['2025-10-27','2025-12-29'],['2026-01-19','2026-02-20'],['2026-03-13','2026-04-24'],['2026-05-15','2026-06-26'],['2026-07-17','2026-08-28']],
+  'Glutathione':[['2025-10-27','2026-01-09'],['2026-02-08','2026-03-18'],['2026-04-17','2026-06-26'],['2026-07-26','2026-10-04'],['2026-11-03','2027-01-12']],
+  'Retatrutide':[['2025-10-31','2026-04-29'],['2026-05-29','2026-11-25'],['2026-12-25','2027-06-23'],['2027-07-23','2028-01-19'],['2028-02-18','2028-08-16']],
+  'PT-141': null
+};
+
+const DEFAULT_PEPTIDES = [
+  {id:'1',name:'NAD+',      dose:'1.0 mL',     stdDose:'500 mg', freq:'2 times per week', inj:'Fat (subcutaneous)',    vial:'500 mg', bac:'10 mL',stock:8, usedPct:35},
+  {id:'2',name:'Semax',     dose:'0.10 mL',    stdDose:'0.5 mg', freq:'Daily',            inj:'Fat (subcutaneous)',    vial:'10 mg',  bac:'2 mL', stock:2, usedPct:55},
+  {id:'3',name:'KLOW',      dose:'0.10 mL',    stdDose:'1.67 mg',freq:'Daily',            inj:'Fat (subcutaneous)',    vial:'50 mg',  bac:'3 mL', stock:1, usedPct:65},
+  {id:'4',name:'Selank',    dose:'0.10 mL',    stdDose:'0.5 mg', freq:'Daily',            inj:'Fat (subcutaneous)',    vial:'10 mg',  bac:'2 mL', stock:2, usedPct:55},
+  {id:'5',name:'Glutathione',dose:'1.0 mL',    stdDose:'120 mg', freq:'3 times per week', inj:'Muscle (intramuscular)',vial:'1200 mg',bac:'10 mL',stock:18,usedPct:20},
+  {id:'6',name:'Retatrutide',dose:'0.05–0.2 mL',stdDose:'0.5 mg',freq:'Weekly',          inj:'Fat (subcutaneous)',    vial:'10 mg',  bac:'2 mL', stock:2, usedPct:22},
+  {id:'7',name:'PT-141',    dose:'0.2–0.4 mL', stdDose:'0.5 mg', freq:'As needed',       inj:'Fat (subcutaneous)',    vial:'10 mg',  bac:'2 mL', stock:1, usedPct:60}
+];
+
+const SITES = ['L Abdomen','R Abdomen','L Thigh','R Thigh','L Delt','R Delt','L Glute','R Glute'];
+
+// ─── STATE ───────────────────────────────────────────────
+let currentUser = null; // {id, email, name, passHash}
+let peptides = [], logs = [];
+let selectedPeptideId = null, selectedSite = '';
+
+// ─── SIMPLE HASH (not cryptographic — for demo purposes) ──
+async function hashPass(pass) {
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(pass+'vialwell_salt'));
+  return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
+}
+
+// ─── STORAGE HELPERS ─────────────────────────────────────
+// Users stored shared (just email+hash, no private data)
+// Peptides and logs stored per-user (private)
+
+async function getUsers() {
+  try {
+    const r = await window.storage.get('vw_users', true);
+    return r ? JSON.parse(r.value) : {};
+  } catch { return {}; }
+}
+async function saveUsers(users) {
+  await window.storage.set('vw_users', JSON.stringify(users), true);
+}
+async function loadUserData(uid) {
+  try {
+    const rp = await window.storage.get(`vw_peptides_${uid}`);
+    peptides = rp ? JSON.parse(rp.value) : JSON.parse(JSON.stringify(DEFAULT_PEPTIDES));
+    const rl = await window.storage.get(`vw_logs_${uid}`);
+    logs = rl ? JSON.parse(rl.value) : [];
+  } catch { peptides = JSON.parse(JSON.stringify(DEFAULT_PEPTIDES)); logs = []; }
+}
+async function saveUserData() {
+  if(!currentUser) return;
+  const uid = currentUser.id;
+  await window.storage.set(`vw_peptides_${uid}`, JSON.stringify(peptides));
+  await window.storage.set(`vw_logs_${uid}`, JSON.stringify(logs));
+}
+
+// ─── SESSION (localStorage for device session) ───────────
+function saveSession() { try { localStorage.setItem('vw_session', JSON.stringify({id:currentUser.id,email:currentUser.email,name:currentUser.name})); } catch{} }
+function loadSession() { try { const s=localStorage.getItem('vw_session'); return s?JSON.parse(s):null; } catch{return null;} }
+function clearSession() { try { localStorage.removeItem('vw_session'); } catch{} }
+
+// ─── AUTH UI ─────────────────────────────────────────────
+function switchAuthTab(tab) {
+  document.getElementById('signin-form').style.display = tab==='signin'?'block':'none';
+  document.getElementById('signup-form').style.display = tab==='signup'?'block':'none';
+  document.getElementById('tab-signin').classList.toggle('active', tab==='signin');
+  document.getElementById('tab-signup').classList.toggle('active', tab==='signup');
+  document.getElementById('auth-error').textContent = '';
+}
+
+async function signUp() {
+  const name = document.getElementById('su-name').value.trim();
+  const email = document.getElementById('su-email').value.trim().toLowerCase();
+  const pass = document.getElementById('su-pass').value;
+  const err = document.getElementById('auth-error');
+  if(!name||!email||!pass) { err.textContent='All fields required'; return; }
+  if(pass.length < 6) { err.textContent='Password must be at least 6 characters'; return; }
+  showLoader();
+  const users = await getUsers();
+  if(users[email]) { hideLoader(); err.textContent='Email already registered'; return; }
+  const hash = await hashPass(pass);
+  const uid = 'u_'+Date.now()+'_'+Math.random().toString(36).slice(2,7);
+  users[email] = {id:uid, name, passHash:hash};
+  await saveUsers(users);
+  currentUser = {id:uid, email, name};
+  await loadUserData(uid);
+  saveSession();
+  hideLoader();
+  launchApp();
+}
+
+async function signIn() {
+  const email = document.getElementById('si-email').value.trim().toLowerCase();
+  const pass = document.getElementById('si-pass').value;
+  const err = document.getElementById('auth-error');
+  if(!email||!pass) { err.textContent='Email and password required'; return; }
+  showLoader();
+  const users = await getUsers();
+  const u = users[email];
+  if(!u) { hideLoader(); err.textContent='No account found for that email'; return; }
+  const hash = await hashPass(pass);
+  if(hash !== u.passHash) { hideLoader(); err.textContent='Incorrect password'; return; }
+  currentUser = {id:u.id, email, name:u.name};
+  await loadUserData(u.id);
+  saveSession();
+  hideLoader();
+  launchApp();
+}
+
+async function signOut() {
+  clearSession();
+  currentUser = null; peptides = []; logs = [];
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('auth-screen').style.display = 'flex';
+  document.getElementById('si-email').value='';
+  document.getElementById('si-pass').value='';
+}
+
+function launchApp() {
+  document.getElementById('auth-screen').style.display = 'none';
+  document.getElementById('app').style.display = 'flex';
+  document.getElementById('profile-email-display').textContent = currentUser.email;
+  document.getElementById('profile-name-display').textContent = currentUser.name;
+  renderHome();
+  renderShop();
+}
+
+// ─── LOADER ───────────────────────────────────────────────
+function showLoader() {
+  let l = document.getElementById('loader');
+  if(!l) { l=document.createElement('div'); l.id='loader'; l.className='loading-overlay'; l.innerHTML='<div class="spinner"></div>'; document.body.appendChild(l); }
+  l.style.display='flex';
+}
+function hideLoader() { const l=document.getElementById('loader'); if(l) l.style.display='none'; }
+
+// ─── UTILS ───────────────────────────────────────────────
+function today() { const n=new Date(); return n.getFullYear()+'-'+String(n.getMonth()+1).padStart(2,'0')+'-'+String(n.getDate()).padStart(2,'0'); }
+function toLocal(s) { return s?s.slice(0,10):null; }
+function formatDate(d) {
+  if(!d) return '—';
+  const [y,m,day]=d.split('-');
+  return ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][parseInt(m)-1]+' '+parseInt(day)+', '+y;
+}
+function isOnCycle(p) {
+  if(p.freq==='As needed') return true;
+  const cycles=CYCLES[p.name];
+  if(p.cycleOn||p.cycleOff) { // custom cycle
+    const t=today();
+    if(p.cycleOn&&t<toLocal(p.cycleOn)) return false;
+    if(p.cycleOff&&t>toLocal(p.cycleOff)) return false;
+    return true;
+  }
+  if(!cycles) return true;
+  const t=today();
+  return cycles.some(([s,e])=>t>=toLocal(s)&&t<=toLocal(e));
+}
+function getCurrentCycle(p) {
+  const cycles=CYCLES[p.name];
+  if(!cycles&&!p.cycleOn&&!p.cycleOff) return null;
+  const t=today();
+  if(p.cycleOn||p.cycleOff) {
+    const on=!p.cycleOn||t>=toLocal(p.cycleOn), off=!p.cycleOff||t<=toLocal(p.cycleOff);
+    return {on:on&&off, end:p.cycleOff||null, next:(!on)?p.cycleOn:null};
+  }
+  if(!cycles) return null;
+  for(const [s,e] of cycles) if(t>=toLocal(s)&&t<=toLocal(e)) return {on:true,end:e};
+  const upcoming=cycles.filter(([s])=>toLocal(s)>t).sort((a,b)=>a[0].localeCompare(b[0]));
+  return upcoming.length?{on:false,next:upcoming[0][0],nextEnd:upcoming[0][1]}:{on:false,next:null};
+}
+function daysUntil(d) { if(!d)return null; return Math.round((new Date(toLocal(d)+'T00:00:00')-new Date(today()+'T00:00:00'))/86400000); }
+function toast(msg) { const el=document.getElementById('toast'); el.textContent=msg; el.classList.add('show'); setTimeout(()=>el.classList.remove('show'),2500); }
+
+// ─── SCREENS ─────────────────────────────────────────────
+function showScreen(name) {
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('screen-'+name).classList.add('active');
+  document.getElementById('tab-'+name).classList.add('active');
+  if(name==='home') renderHome();
+  if(name==='log') renderLog();
+  if(name==='reminders') renderReminders();
+  if(name==='shop') renderShop();
+  if(name==='profile') renderProfile();
+}
+
+// ─── HOME ─────────────────────────────────────────────────
+function renderHome() {
+  const t=today(), todayLogs=logs.filter(l=>l.date===t);
+  const loggedIds=new Set(todayLogs.map(l=>l.peptideId));
+  const onCycle=peptides.filter(p=>isOnCycle(p));
+  const due=peptides.filter(p=>isOnCycle(p)&&p.freq!=='As needed');
+  document.getElementById('m-on').textContent=onCycle.length;
+  document.getElementById('m-logged').textContent=loggedIds.size;
+  document.getElementById('m-total').textContent=due.length;
+  const now=new Date();
+  document.getElementById('home-date').textContent=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'][now.getDay()]+', '+['January','February','March','April','May','June','July','August','September','October','November','December'][now.getMonth()]+' '+now.getDate();
+
+  let html='';
+  peptides.forEach(p=>{
+    const on=isOnCycle(p), logged=loggedIds.has(p.id);
+    const low=(parseInt(p.stock)||0)<=1;
+    const pct=Math.max(0,Math.min(100,100-(p.usedPct||0)));
+    const pctClass=pct<20?'critical':pct<40?'low':'';
+    const lastLog=logs.filter(l=>l.peptideId===p.id).sort((a,b)=>b.date.localeCompare(a.date))[0];
+    const cyc=getCurrentCycle(p);
+    let badge='';
+    if(p.freq==='As needed') badge=`<span class="badge badge-on">As needed</span>`;
+    else if(on) badge=`<span class="badge badge-on">On cycle</span>`;
+    else if(cyc&&cyc.next&&daysUntil(cyc.next)<=7) badge=`<span class="badge badge-soon">Resumes in ${daysUntil(cyc.next)}d</span>`;
+    else badge=`<span class="badge badge-off">Off cycle</span>`;
+
+    html+=`<div class="card"><div class="card-header"><div><div class="card-name">${p.name}</div><div class="card-sub">${p.stdDose} · ${p.freq} · ${p.dose} · ${p.inj.includes('Fat')?'SubQ':'IM'}</div></div>${badge}</div>`;
+    if(on&&p.freq!=='As needed'){
+      html+=`<div class="progress-wrap"><div class="progress-label"><span>Vial: ${pct}% remaining</span><span>${p.stock} vial${p.stock==1?'':'s'}${low?' · <span style="color:var(--warning)">low</span>':''}</span></div><div class="progress-track"><div class="progress-fill ${pctClass}" style="width:${pct}%"></div></div></div>
+      <div class="log-status"><div class="log-dot ${logged?'done':''}"></div><span class="log-status-text">${logged?'Logged today':'Not yet logged'} · Last site: ${lastLog?lastLog.site:'—'}</span></div>`;
+      if(cyc&&cyc.end){const du=daysUntil(cyc.end); html+=`<div style="font-size:11px;color:${du<=10?'var(--warning)':'var(--text-hint)'};margin-top:6px">${du<=10?'⚠ Cycle ends in '+du+' day'+(du===1?'':'s'):'Cycle ends '+formatDate(cyc.end)}</div>`;}
+    } else if(p.freq!=='As needed'&&cyc&&cyc.next){
+      html+=`<div style="font-size:12px;color:var(--text-muted);margin-top:6px">Next cycle: ${formatDate(cyc.next)}${cyc.nextEnd?' → '+formatDate(cyc.nextEnd):''}</div>`;
+    }
+    html+=`</div>`;
+  });
+  html+=`<button class="btn-ghost" style="width:100%;margin-top:4px;margin-bottom:20px" onclick="openModal()">+ Add peptide</button>`;
+  document.getElementById('peptide-cards').innerHTML=html;
+}
+
+// ─── LOG ──────────────────────────────────────────────────
+function renderLog() {
+  document.getElementById('log-date-display').textContent=formatDate(today());
+  const pills=document.getElementById('log-peptide-pills');
+  pills.innerHTML='';
+  peptides.forEach(p=>{
+    const btn=document.createElement('div');
+    btn.className='pill'+(selectedPeptideId===p.id?' active':'');
+    btn.textContent=p.name;
+    if(!isOnCycle(p)&&p.freq!=='As needed') btn.style.opacity='0.45';
+    btn.onclick=function(){selectLogPeptide(p.id,this);};
+    pills.appendChild(btn);
+  });
+  if(selectedPeptideId) showLogForm();
+  else document.getElementById('log-form').style.display='none';
+}
+function selectLogPeptide(id,el){
+  selectedPeptideId=id; selectedSite='';
+  document.querySelectorAll('#log-peptide-pills .pill').forEach(p=>p.classList.remove('active'));
+  if(el) el.classList.add('active');
+  showLogForm();
+}
+function showLogForm(){
+  const p=peptides.find(x=>x.id===selectedPeptideId); if(!p)return;
+  document.getElementById('log-form').style.display='block';
+  document.getElementById('log-date-input').value=today();
+  document.getElementById('log-dose-display').value=`${p.stdDose} · ${p.dose}`;
+  const lastLog=logs.filter(l=>l.peptideId===p.id).sort((a,b)=>b.date.localeCompare(a.date))[0];
+  const lastSite=lastLog?lastLog.site:'';
+  const grid=document.getElementById('site-grid'); grid.innerHTML='';
+  SITES.forEach(s=>{
+    const btn=document.createElement('div');
+    btn.className='site-btn'+(s===lastSite?' last-used':'')+(s===selectedSite?' selected':'');
+    btn.innerHTML=s+(s===lastSite?'<br><span style="font-size:9px;opacity:.7">last used</span>':'');
+    btn.onclick=function(){selectedSite=s; document.querySelectorAll('.site-btn').forEach(b=>b.classList.remove('selected')); btn.classList.add('selected');};
+    grid.appendChild(btn);
+  });
+}
+async function saveLog(){
+  if(!selectedPeptideId){toast('Please select a peptide');return;}
+  const p=peptides.find(x=>x.id===selectedPeptideId);
+  const date=document.getElementById('log-date-input').value;
+  if(!date){toast('Please select a date');return;}
+  logs.push({id:Date.now().toString(),peptideId:selectedPeptideId,peptideName:p.name,date,site:selectedSite||'—',notes:document.getElementById('log-notes').value});
+  p.usedPct=Math.min(99,(p.usedPct||0)+2);
+  showLoader();
+  await saveUserData();
+  hideLoader();
+  toast('Dose saved ✓');
+  document.getElementById('log-notes').value='';
+  selectedSite=''; selectedPeptideId=null;
+  showScreen('home');
+}
+
+// ─── REMINDERS ────────────────────────────────────────────
+function renderReminders(){
+  const t=today(), dow=new Date().getDay(), loggedToday=new Set(logs.filter(l=>l.date===t).map(l=>l.peptideId));
+  const amToday=[], pmToday=[];
+  if([1,2,3,4,5].includes(dow)){const s=peptides.find(p=>p.name==='Semax');if(s&&isOnCycle(s))amToday.push(s);}
+  if([1,3].includes(dow)){const n=peptides.find(p=>p.name==='NAD+');if(n&&isOnCycle(n))amToday.push(n);}
+  if(dow===5){const r=peptides.find(p=>p.name==='Retatrutide');if(r&&isOnCycle(r))amToday.push(r);}
+  if([1,2,3,4,5].includes(dow)){
+    const k=peptides.find(p=>p.name==='KLOW'), s=peptides.find(p=>p.name==='Selank');
+    if(k&&isOnCycle(k))pmToday.push(k); if(s&&isOnCycle(s))pmToday.push(s);
+  }
+  if([1,3,5].includes(dow)){const g=peptides.find(p=>p.name==='Glutathione');if(g&&isOnCycle(g))pmToday.push(g);}
+  let html='';
+  if(!amToday.length&&!pmToday.length){ html='<div style="text-align:center;padding:30px;color:var(--text-muted);font-size:14px">No doses scheduled today</div>'; }
+  else{
+    if(amToday.length){ html+='<div style="font-size:11px;font-weight:500;color:var(--warning);letter-spacing:.08em;text-transform:uppercase;margin-bottom:6px">AM</div>'; html+=amToday.map(p=>`<div class="notif am"><h4>${p.name} · ${p.stdDose}${loggedToday.has(p.id)?' ✓':''}</h4><p>${p.dose} · ${p.inj.includes('Fat')?'SubQ':'IM'}</p></div>`).join('');}
+    if(pmToday.length){ html+='<div style="font-size:11px;font-weight:500;color:var(--rose);letter-spacing:.08em;text-transform:uppercase;margin:10px 0 6px">PM</div>'; html+=pmToday.map(p=>`<div class="notif"><h4>${p.name} · ${p.stdDose}${loggedToday.has(p.id)?' ✓':''}</h4><p>${p.dose} · ${p.inj.includes('Fat')?'SubQ':'IM'}</p></div>`).join('');}
+  }
+  document.getElementById('todays-schedule').innerHTML=html;
+}
+
+// ─── SHOP ─────────────────────────────────────────────────
+function renderShop(){
+  document.getElementById('shop-peptides').innerHTML=peptides.map(p=>`
+    <div class="shop-card"><div class="shop-dot"><span></span></div><div class="shop-info"><h4>${p.name} · ${p.vial}</h4><p>${p.stdDose} · ${p.freq}</p></div><div class="shop-arrow">›</div></div>`).join('');
+}
+
+// ─── PROFILE ─────────────────────────────────────────────
+function renderProfile(){
+  document.getElementById('profile-peptide-list').innerHTML=peptides.map(p=>`
+    <div class="card" style="padding:12px 14px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center">
+      <div><div style="font-family:'Cormorant Garamond',serif;font-size:17px">${p.name}</div><div style="font-size:11px;color:var(--text-muted);margin-top:2px">${p.stdDose} · ${p.freq}</div></div>
+      <div style="display:flex;gap:8px">
+        <button class="btn-ghost" style="padding:6px 12px;font-size:11px" onclick="editPeptide('${p.id}')">Edit</button>
+        <button class="btn-ghost" style="padding:6px 12px;font-size:11px;color:var(--rose-dark)" onclick="deletePeptide('${p.id}')">✕</button>
+      </div>
+    </div>`).join('');
+}
+
+// ─── ADD / EDIT PEPTIDE ───────────────────────────────────
+function openModal(){ document.getElementById('modal-title').textContent='Add peptide'; document.getElementById('edit-peptide-id').value=''; document.getElementById('add-modal').classList.add('open'); }
+function closeModal(){ document.getElementById('add-modal').classList.remove('open'); }
+
+function editPeptide(id){
+  const p=peptides.find(x=>x.id===id); if(!p)return;
+  document.getElementById('modal-title').textContent='Edit peptide';
+  document.getElementById('edit-peptide-id').value=id;
+  document.getElementById('p-name').value=p.name;
+  document.getElementById('p-dose').value=p.stdDose;
+  document.getElementById('p-vol').value=p.dose;
+  document.getElementById('p-freq').value=p.freq;
+  document.getElementById('p-inj').value=p.inj;
+  document.getElementById('p-vial').value=p.vial;
+  document.getElementById('p-bac').value=p.bac;
+  document.getElementById('p-stock').value=p.stock;
+  document.getElementById('p-cycle-on').value=p.cycleOn||'';
+  document.getElementById('p-cycle-off').value=p.cycleOff||'';
+  document.getElementById('add-modal').classList.add('open');
+}
+
+async function deletePeptide(id){
+  if(!confirm('Remove this peptide?')) return;
+  peptides=peptides.filter(p=>p.id!==id);
+  showLoader(); await saveUserData(); hideLoader();
+  toast('Peptide removed');
+  renderProfile(); renderHome();
+}
+
+async function savePeptide(){
+  const name=document.getElementById('p-name').value.trim();
+  if(!name){toast('Name required');return;}
+  const editId=document.getElementById('edit-peptide-id').value;
+  const data={
+    name, dose:document.getElementById('p-vol').value||'0.1 mL',
+    stdDose:document.getElementById('p-dose').value||'—',
+    freq:document.getElementById('p-freq').value,
+    inj:document.getElementById('p-inj').value,
+    vial:document.getElementById('p-vial').value||'—',
+    bac:document.getElementById('p-bac').value||'—',
+    stock:parseInt(document.getElementById('p-stock').value)||1,
+    cycleOn:document.getElementById('p-cycle-on').value||null,
+    cycleOff:document.getElementById('p-cycle-off').value||null,
+  };
+  if(editId){ const i=peptides.findIndex(p=>p.id===editId); if(i>-1){ peptides[i]={...peptides[i],...data}; } }
+  else { peptides.push({id:Date.now().toString(),usedPct:0,...data}); }
+  showLoader(); await saveUserData(); hideLoader();
+  closeModal(); toast(editId?'Peptide updated':'Peptide added');
+  ['p-name','p-dose','p-vol','p-vial','p-bac','p-stock','p-cycle-on','p-cycle-off'].forEach(id=>document.getElementById(id).value='');
+  renderHome(); renderProfile();
+}
+
+// ─── INIT ─────────────────────────────────────────────────
+async function init(){
+  // Hide splash after 1.5s
+  setTimeout(()=>{
+    const s=document.getElementById('splash');
+    s.style.opacity='0';
+    setTimeout(()=>{if(s.parentNode)s.parentNode.removeChild(s);},500);
+  },1500);
+
+  // Try resuming session
+  const session=loadSession();
+  if(session){
+    showLoader();
+    try {
+      const users=await getUsers();
+      const u=users[session.email];
+      if(u&&u.id===session.id){
+        currentUser={id:u.id,email:session.email,name:u.name};
+        await loadUserData(u.id);
+        hideLoader();
+        launchApp(); return;
+      }
+    } catch(e){}
+    hideLoader();
+  }
+  document.getElementById('auth-screen').style.display='flex';
+}
+
+document.getElementById('add-modal').addEventListener('click',function(e){if(e.target===this)closeModal();});
+init();
+</script>
+</body>
+</html>
